@@ -12,8 +12,8 @@ API desarrollada con **Java 21** y **Spring Boot 3.5** para registrar, consultar
 1. Clonar el repositorio:
 
 ```bash
-git clone <URL_DEL_REPOSITORIO>
-cd exa.parcial
+git clone https://github.com/MaxVasquezR/exa-parcial-soporte-tecnico.git
+cd exa-parcial-soporte-tecnico
 ```
 
 2. Ejecutar la aplicación:
