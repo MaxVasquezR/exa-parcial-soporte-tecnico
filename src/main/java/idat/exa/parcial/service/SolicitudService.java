@@ -1,11 +1,13 @@
 package idat.exa.parcial.service;
-import idat.exa.parcial.model.Solicitud;
+
+import idat.exa.parcial.dto.SolicitudCreateDTO;
+import idat.exa.parcial.dto.SolicitudResponseDTO;
 import java.util.List;
 
 public interface SolicitudService {
-    Solicitud crearSolicitud(Solicitud solicitud);
-    List<Solicitud> obtenerTodas();
-    Solicitud obtenerPorId(Long id);
-    Solicitud actualizarSolicitud(Long id, Solicitud solicitud);
+    SolicitudResponseDTO crearSolicitud(SolicitudCreateDTO dto);
+    List<SolicitudResponseDTO> obtenerTodas();
+    SolicitudResponseDTO obtenerPorId(Long id);
+    SolicitudResponseDTO actualizarSolicitud(Long id, SolicitudCreateDTO dto);
     void eliminarSolicitud(Long id);
 }

@@ -1,56 +1,86 @@
-package idat.exa.parcial.service;
+package idat.exa.parcial.service; // Ajusta tu paquete
+
+import idat.exa.parcial.dto.SolicitudCreateDTO;
+import idat.exa.parcial.dto.SolicitudResponseDTO;
 import idat.exa.parcial.exception.RecursoNoEncontradoException;
 import idat.exa.parcial.model.Solicitud;
+import idat.exa.parcial.repository.SolicitudRepository;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
+
+import java.time.LocalDate;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class SolicitudServiceImpl implements SolicitudService {
 
+    private final SolicitudRepository repository;
 
-    private final List<Solicitud> solicitudes = new ArrayList<>();
-
-
-    private final AtomicLong idGenerator = new AtomicLong(1);
+    // Inyectamos el repositorio
+    public SolicitudServiceImpl(SolicitudRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
-    public Solicitud crearSolicitud(Solicitud solicitud) {
-        solicitud.setId(idGenerator.getAndIncrement());
-        solicitud.setFechaCreacion(java.time.LocalDate.now());
+    public SolicitudResponseDTO crearSolicitud(SolicitudCreateDTO dto) {
+        // Convertimos DTO a Modelo
+        Solicitud solicitud = new Solicitud();
+        solicitud.setTitulo(dto.getTitulo());
+        solicitud.setDescripcion(dto.getDescripcion());
+        solicitud.setCliente(dto.getCliente());
+        solicitud.setTecnico(dto.getTecnico());
         solicitud.setEstado("Abierto");
-        solicitudes.add(solicitud);
-        return solicitud;
+        solicitud.setFechaCreacion(LocalDate.now());
+
+        // Guardamos usando el repositorio
+        Solicitud saved = repository.save(solicitud);
+
+        // Convertimos Modelo a DTO de Respuesta
+        return mapToResponseDTO(saved);
     }
 
     @Override
-    public List<Solicitud> obtenerTodas() {
-        return solicitudes;
+    public List<SolicitudResponseDTO> obtenerTodas() {
+        return repository.findAll().stream().map(this::mapToResponseDTO).toList();
     }
 
     @Override
-    public Solicitud obtenerPorId(Long id) {
-        return solicitudes.stream()
-                .filter(s -> s.getId().equals(id))
-                .findFirst()
+    public SolicitudResponseDTO obtenerPorId(Long id) {
+        Solicitud solicitud = repository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Solicitud no encontrada con id: " + id));
+        return mapToResponseDTO(solicitud);
     }
 
     @Override
-    public Solicitud actualizarSolicitud(Long id, Solicitud solicitudActualizada) {
-        Solicitud solicitudExistente = obtenerPorId(id);
-        solicitudExistente.setTitulo(solicitudActualizada.getTitulo());
-        solicitudExistente.setDescripcion(solicitudActualizada.getDescripcion());
-        solicitudExistente.setEstado(solicitudActualizada.getEstado());
-        solicitudExistente.setCliente(solicitudActualizada.getCliente());
-        solicitudExistente.setTecnico(solicitudActualizada.getTecnico());
-        return solicitudExistente;
+    public SolicitudResponseDTO actualizarSolicitud(Long id, SolicitudCreateDTO dto) {
+        Solicitud solicitudExistente = repository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Solicitud no encontrada con id: " + id));
+
+        solicitudExistente.setTitulo(dto.getTitulo());
+        solicitudExistente.setDescripcion(dto.getDescripcion());
+        solicitudExistente.setCliente(dto.getCliente());
+        solicitudExistente.setTecnico(dto.getTecnico());
+
+        return mapToResponseDTO(solicitudExistente);
     }
 
     @Override
     public void eliminarSolicitud(Long id) {
-        Solicitud solicitud = obtenerPorId(id);
-        solicitudes.remove(solicitud);
+        if(repository.findById(id).isEmpty()){
+            throw new RecursoNoEncontradoException("Solicitud no encontrada con id: " + id);
+        }
+        repository.deleteById(id);
+    }
+
+    // Método privado para no repetir código de conversión
+    private SolicitudResponseDTO mapToResponseDTO(Solicitud solicitud) {
+        SolicitudResponseDTO responseDTO = new SolicitudResponseDTO();
+        responseDTO.setId(solicitud.getId());
+        responseDTO.setTitulo(solicitud.getTitulo());
+        responseDTO.setDescripcion(solicitud.getDescripcion());
+        responseDTO.setEstado(solicitud.getEstado());
+        responseDTO.setFechaCreacion(solicitud.getFechaCreacion());
+        responseDTO.setCliente(solicitud.getCliente());
+        responseDTO.setTecnico(solicitud.getTecnico());
+        return responseDTO;
     }
 }
