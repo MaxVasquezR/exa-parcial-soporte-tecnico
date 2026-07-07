@@ -64,13 +64,26 @@ cd exa-parcial-soporte-tecnico
 }
 ```
 
+## Arquitectura
+
+El proyecto sigue una arquitectura en capas:
+
+1. **Controller** — Expone los endpoints REST y valida las peticiones entrantes.
+2. **Service** — Contiene la lógica de negocio y el mapeo entre DTOs y modelos.
+3. **Repository** — Gestiona el almacenamiento en memoria de las solicitudes.
+4. **DTO** — Objetos de transferencia para las peticiones (`SolicitudCreateDTO`) y respuestas (`SolicitudResponseDTO`).
+5. **Model** — Entidades del dominio (`Solicitud`, `Cliente`, `Tecnico`).
+6. **Exception** — Manejo centralizado de errores (validación y recursos no encontrados).
+
 ## Estructura del proyecto
 
 ```
 src/main/java/idat/exa/parcial/
 ├── controller/    # Controladores REST
-├── service/       # Lógica de negocio
-├── model/         # Entidades (Solicitud, Cliente, Tecnico)
+├── service/       # Lógica de negocio e interfaces
+├── repository/    # Persistencia en memoria
+├── dto/           # Objetos de entrada y salida de la API
+├── model/         # Entidades del dominio
 └── exception/     # Manejo centralizado de errores
 ```
 
